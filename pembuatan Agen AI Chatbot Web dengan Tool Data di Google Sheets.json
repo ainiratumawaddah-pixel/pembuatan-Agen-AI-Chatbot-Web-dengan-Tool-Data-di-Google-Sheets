@@ -1,0 +1,161 @@
+{
+  "name": "pembuatan Agen AI Chatbot Web dengan Tool Data di Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": " Halo! 👋 Selamat datang di Rumah Makan Lezat. Saya asisten menu kami, mau tanya harga atau info produk apa hari ini?",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "610d3712-d4be-468e-8315-eb5c6729f38c",
+      "name": "When chat message received",
+      "webhookId": "36c08455-f31b-479c-a2ab-cadaf400b4e4"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Kamu adalah chatbot yang membantu pengguna mendapatkan informasi tentang produk berdasarkan data yang tersedia di Google Sheets.\n\nTugas kamu:\n1. Menjawab pertanyaan tentang nama produk, kategori, harga, dan deskripsi produk.\n2. Gunakan Google Sheets Tool untuk mencari data produk yang dibutuhkan.\n3. Jangan mengarang nama produk, harga, kategori, atau deskripsi yang tidak ada di Google Sheets.\n4. Jika pengguna menanyakan harga suatu produk, cari produk tersebut di Google Sheets dan berikan harga yang sesuai.\n5. Jika produk yang ditanyakan tidak ditemukan, sampaikan bahwa produk tersebut tidak tersedia dalam data.\n6. Jika pengguna menanyakan beberapa produk, berikan informasi masing-masing produk dengan jelas.\n7. Jawab menggunakan bahasa Indonesia yang sederhana, jelas, dan ramah."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "83cfc9d3-aa0a-4e98-8886-2c2ffe67fe50",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.8-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "12d3a7c0-3fa2-4361-9cc3-d0b336a38bda",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "skYrLYAFMSTd0UqB",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        208
+      ],
+      "id": "e96629c7-69a2-415c-acf4-1ae481c5e393",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1bGe0SSw6qU217pIXAx34OXX3vbIoGUQBLnivlvL7_Hg",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        208
+      ],
+      "id": "f7ca7573-b315-4727-b6b4-d420e5b447f3",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ztu89CHLrk0gtPjl",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "cec41b17-a8ed-49a8-9cc8-6daab2e8f93f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc96f10ae7dc95d3c138575ba243a0a167923dbcb524841d451aadf9135d5fb3"
+  },
+  "nodeGroups": [],
+  "id": "ct7J8oYQQ879gVez",
+  "tags": []
+}
